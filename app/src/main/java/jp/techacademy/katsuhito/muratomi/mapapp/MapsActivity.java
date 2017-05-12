@@ -1,6 +1,7 @@
 package jp.techacademy.katsuhito.muratomi.mapapp;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -9,6 +10,9 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -25,13 +29,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     String[] string = {"Manifest.permission.WRITE_EXTERNAL_STORAGE",
             "Manifest.permission.ACCESS_FINE_LOCATION",
     };
-    int place=1;
-    int PLACE_PICKER_REQUEST = 1;
-
-    PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
-
-    startActivityForResult(builder.build(this), PLACE_PICKER_REQUEST);
-
+    int status;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +39,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(map);
         mapFragment.getMapAsync(this);
+
+
+
+
+      /*  if (status == ConnectionResult.SUCCESS) {
+            int PLACE_PICKER_REQUEST = 199;
+            PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
+            Context context = this;
+            try {
+                startActivityForResult(builder.build(this), PLACE_PICKER_REQUEST);
+            } catch (GooglePlayServicesRepairableException e) {
+                e.printStackTrace();
+            } catch (GooglePlayServicesNotAvailableException e) {
+                e.printStackTrace();
+            }
+        } */
+
 
     }
 
@@ -85,14 +100,34 @@ Log.d("test","ok");
                 LatLng point =new LatLng(poi.latLng.latitude,poi.latLng.longitude);
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(point));
                 mMap.addMarker(new MarkerOptions().position(point).title("移動したよ"));
+                //try catch しないとエラーがでてしまう
+
+                try{
+                    int request =1;
+                    PlacePicker.IntentBuilder builder =new PlacePicker.IntentBuilder();
+                    Intent intent=builder.build(MapsActivity.this);
+                    startActivityForResult(intent,request);
+                }catch (GooglePlayServicesNotAvailableException e) {
+
+                }catch (GooglePlayServicesRepairableException e){
+
+                }
+
+
             }
+
+
         });
+
 
 
 
     }
 
-
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //PlacePickerの画面から戻るときに呼ばれている
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
